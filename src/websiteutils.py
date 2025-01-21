@@ -16,21 +16,21 @@ rm_tree = shutil.rmtree
 def copy_clean(source_folder, target_folder, verbose = True):
     if path_exists(target_folder):
         if(verbose):
-            print(f"Deleting old folder {target_entry}")
+            print(f"Deleting old folder '{target_folder}'")
         rm_tree(target_folder)
     if(verbose):
-        print(f"Creating folder {target_entry}")
+        print(f"Creating folder '{target_folder}'")
     mkdir(target_folder)
     for entry in listdir(source_folder):
         source_entry = os.path.join(source_folder, entry)
         target_entry = os.path.join(target_folder, entry)
         if path_isfile(source_entry):
             if(verbose):
-                print(f"Copying file {source_entry} to {target_entry}")
+                print(f"Copying file '{source_entry}' to '{target_entry}'")
             file_copy(source_entry, target_entry)
         else:
             if(verbose):
-                print(f"Copying dir {source_entry} to {target_entry}")
+                print(f"Copying folder '{source_entry}' to '{target_entry}'")
             copy_clean(source_entry, target_entry)
 
 def extract_title(markdown):
@@ -52,16 +52,16 @@ def recursive_mkdir(dest_path):
         recursive_mkdir(os.path.dirname(dest_path))
 
 def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    print(f"Generating page from '{from_path}' to '{dest_path}' using '{template_path}'")
     with open(from_path) as file:
         markdown = file.read()
     with open(template_path) as file:
         template = file.read()
-    content = (markdown_to_html_node(markdown)).to_html
+    content = (markdown_to_html_node(markdown)).to_html()    
     title = extract_title(markdown)
-    generated = (template.replace("\{\{ Title \}\}", title)).replace("\{\{ Content \}\}", content)
+    generated = (template.replace("{{ Title }}", title)).replace("{{ Content }}", content)
     recursive_mkdir(os.path.dirname(dest_path))
-    with open(dest_path) as file:
+    with open(dest_path, "w") as file:
         file.write(generated)
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, verbose = True):
@@ -70,12 +70,18 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, ver
         source_entry = os.path.join(dir_path_content, entry)
         target_entry = os.path.join(dest_dir_path, entry)
         if path_isfile(source_entry):
-            if(verbose):
-                print(f"Generating {target_entry} from {source_entry} and {template_path}")
-            generate_page(source_entry, template_path, target_entry)
+            (target_base, target_ext) = os.path.splitext(target_entry)
+            if ".md" == target_ext:
+                target_newext = target_base + ".html"
+                if(verbose):
+                    print(f"Generating '{target_newext}' from '{source_entry}' and '{template_path}'")
+                generate_page(source_entry, template_path, target_newext)
+            else:
+                if(verbose):
+                    print(f"Skipping non-md file '{source_entry}'")
         else:
             if(verbose):
-                print(f"Generating dir {source_entry}")
+                print(f"Generating folder '{source_entry}'")
             generate_pages_recursive(source_entry, template_path, target_entry)
 
         

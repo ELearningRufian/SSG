@@ -12,3 +12,10 @@ class ParentNode(HTMLNode):
             raise ValueError(f"Missing children: {str(self)}")
         children_html = reduce(lambda s, t: s + t, map(lambda c: c.to_html(), self.children))
         return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
+
+    def __repr__(self):
+        qt = ("", '"')[isinstance(self.tag, str)]
+        props_str = ""
+        if not None == self.props:
+            props_str = f", {self.props}"
+        return f"ParentNode({qt}{self.tag}{qt}, {self.children}{props_str})"

@@ -10,7 +10,7 @@ class TestLeafNode(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             node.to_html()
         result = str(context.exception)
-        expected = "Leaf nodes MUST have a value"
+        expected = "Leaf node MUST have a value"
         self.assertEqual(result, expected)
 
     def test_to_html_no_tag(self):

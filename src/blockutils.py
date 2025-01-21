@@ -35,7 +35,7 @@ def block_to_block_type(block):
     lines = block.split("\n")
     if functools.reduce(lambda x,y: x and y, map(lambda x: ">" == x[0], lines)):
         return "blockquote"
-    if functools.reduce(lambda x,y: x and y, map(lambda x: x[0] in "*-", lines)):
+    if functools.reduce(lambda x,y: x and y, map(lambda x: (x[0] in "*-") and x[1] == " ", lines)):
         return "ul"
     indices = list(map(lambda i: f"{i+1}. ", range(len(lines))))
     if functools.reduce(lambda x,y: x and y, map(lambda i: lines[i].startswith(indices[i]), range(len(lines)))):
@@ -46,13 +46,14 @@ def strip_markdown(block, block_type):
     if "h" == block_type[0]:
         return block[1+int(block_type[1]):]
     if "code" == block_type:
-        return block[3:-3]
+        return block[3:-3] # TODO: html doesn't preserve newlines, multi-line code blocks do not result in a properly formatted paragraph
     if "blockquote" == block_type:
-        return "\n".join(list(map(lambda l: l[1:], block.split("\n"))))
-    if "l" == block_type[-1:]:
+        return "\n".join(list(map(lambda l: (l[1:]).strip(" "), block.split("\n")))) # TODO: html doesn't preserve newlines, "\n".join does not result in a properly formatted paragraph
+    if "l" == block_type[-1:]: # OL and UL should always be parents of LI items
         return None
     if "li" == block_type:
-        return (block[block.find(" "):]).strip()
+        return (block[1 + block.find(" "):]).strip(" ")
+    return block
     
 def apply_inline(root_node): # Do an **in-place replacement** of leaf nodes with the parent node that results from applying inline transformations
     for i in range(len(root_node.children)): 
@@ -66,7 +67,7 @@ def markdown_to_html_node(markdown):
     parent = ParentNode("div", children=[])
     for block in blocks:
         block_type = block_to_block_type(block)
-        if "l" == block_type[-1:]:
+        if "l" == block_type[-1:]: #unordered and ordered lists
             child = ParentNode(block_type, strip_markdown(block, block_type))
             lines = block.split("\n")
             grandchildren = []
@@ -76,6 +77,7 @@ def markdown_to_html_node(markdown):
         else:
             child = LeafNode(block_type, strip_markdown(block, block_type))
         parent.children.append(child)
+    apply_inline(parent)
     return parent
         
 

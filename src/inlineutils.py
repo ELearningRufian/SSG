@@ -48,7 +48,7 @@ def split_nodes_image(old_nodes):
     return list(functools.reduce(lambda l,m: l+m, list(map(lambda n: split_node(n, extract_markdown_images,("![","](",")"), TextType.IMAGE), old_nodes))))
 
 def split_nodes_link(old_nodes):
-    return list(functools.reduce(lambda l,m: l+m, list(map(lambda n: split_node(n, extract_markdown_links,("[","](",")"), TextType.LINK), old_nodes))))
+    return list(functools.reduce(lambda l,m: l+m, list(map(lambda n: split_node(n, extract_markdown_links,("[","](",")"), TextType.LINK), old_nodes)),[]))
 
 def text_to_textnodes(text):
     nodes = [TextNode(text, TextType.TEXT)]

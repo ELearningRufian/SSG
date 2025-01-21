@@ -16,7 +16,7 @@ class TestParentNode(unittest.TestCase):
             node = ParentNode(None, [LeafNode("b", "Bold text")])
             node.to_html()
         result = str(context.exception)
-        expected = 'Missing tag: HTMLNode(tag=None, value=None, children=[HTMLNode(tag="b", value="Bold text", children=None, props=None)], props=None)'
+        expected = 'Missing tag: ParentNode(None, [LeafNode("b", "Bold text")])'
         self.assertEqual(result, expected)
 
     def test_missing_children(self):
@@ -24,7 +24,7 @@ class TestParentNode(unittest.TestCase):
             node = ParentNode("p", None)
             node.to_html()
         result = str(context.exception)
-        expected = 'Missing children: HTMLNode(tag="p", value=None, children=None, props=None)'
+        expected = 'Missing children: ParentNode("p", None)'
         self.assertEqual(result, expected)
 
     def test_nested_children(self):

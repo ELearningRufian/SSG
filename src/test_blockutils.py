@@ -79,66 +79,68 @@ class TestBlockToBlockType(unittest.TestCase):
 class TestMarkdownToHtmlNode(unittest.TestCase):
     def test_markdown_to_html_node_paragraph(self):
         text="some simple text"
-        expected = ParentNode("div", children=[LeafNode("p", "some simple text")])
+        expected = ParentNode("div", [LeafNode("p", "some simple text")])
         result = markdown_to_html_node(text)
         self.assertEqual(result, expected)
 
     def test_markdown_to_html_node_paragraph(self):
         text="## header"
-        expected = ParentNode("div", children=[LeafNode("h2", "header")])
+        expected = ParentNode("div", [ParentNode("h2", [LeafNode(None, "header")])])
         result = markdown_to_html_node(text)
         self.assertEqual(result, expected)
 
     def test_markdown_to_html_node_code(self):
         text = "```code line 1\ncode line 2\ncode line 3```"
-        expected = ParentNode("div", children=[LeafNode("code", "code line 1\ncode line 2\ncode line 3")])
+        expected = ParentNode("div", [ParentNode("code", [LeafNode(None, "code line 1\ncode line 2\ncode line 3")])])
         result = markdown_to_html_node(text)
         self.assertEqual(result, expected)
 
     def test_markdown_to_html_node_blockquote(self):
         text = ">quote line 1\n>quote line 2\n>quote line 3"
-        expected = ParentNode("div", children=[LeafNode("blockquote", "quote line 1\nquote line 2\nquote line 3")])
+        expected = ParentNode("div", [ParentNode("blockquote", [LeafNode(None, "quote line 1\nquote line 2\nquote line 3")])])
         result = markdown_to_html_node(text)
         self.assertEqual(result, expected)
 
     def test_markdown_to_html_node_ul(self):
         text = "* list line 1\n- list line 2\n* list line 3"
-        expected = ParentNode("div", children=[ParentNode("ul", children=[LeafNode("li", "list line 1"), LeafNode("li", "list line 2"), LeafNode("li", "list line 3")])])
+        expected = ParentNode("div", [ParentNode("ul", [ParentNode("li", [LeafNode(None, "list line 1")]), ParentNode("li", [LeafNode(None, "list line 2")]), ParentNode("li", [LeafNode(None, "list line 3")])])])
         result = markdown_to_html_node(text)
         self.assertEqual(result, expected)
 
     def test_markdown_to_html_node_ol(self):
         text = "1. list line 1\n2. list line 2\n3. list line 3"
-        expected = ParentNode("div", children=[ParentNode("ol", children=[LeafNode("li", "list line 1"), LeafNode("li", "list line 2"), LeafNode("li", "list line 3")])])
+        expected = ParentNode("div", [ParentNode("ol", [ParentNode("li", [LeafNode(None, "list line 1")]), ParentNode("li", [LeafNode(None, "list line 2")]), ParentNode("li", [LeafNode(None, "list line 3")])])])
         result = markdown_to_html_node(text)
         self.assertEqual(result, expected)
 
     def test_markdown_to_html_node_mixedinline(self):
-        text = "1. list **line** 1\n2. list line 2\n3. list *line* 3\n4. [link](https://www.google.com).\n5. ![alt text for image](url/of/image.jpg)"
-        expected = ParentNode(tag="div", children=[
-            ParentNode(tag="ol", children=[
-                ParentNode(tag="li", children=[
-                    LeafNode(tag=None, value="list "), 
-                    LeafNode(tag="b", value="line"), 
-                    LeafNode(tag=None, value=" 1")
-                ]), 
-                ParentNode(tag="li", children=[
-                    LeafNode(tag=None, value="list line 2")
-                ]), 
-                ParentNode(tag="li", children=[
-                    LeafNode(tag=None, value="list "), 
-                    LeafNode(tag="i", value="line"), 
-                    LeafNode(tag=None, value=" 3")
-                ]),
-                ParentNode(tag="li", children=[
-                    LeafNode(tag="a", value="link", props={'href': 'https://www.google.com'}), 
-                    LeafNode(tag=None, value=".")
-                ]),
-                ParentNode(tag="li", children=[
-                    LeafNode(tag="img", value=None, props={'src': 'url/of/image.jpg', 'alt': 'alt text for image'})
-                ])
-            ])
-        ])
+        text = "1. list **line** 1\n2. list line 2\n3. list *line* 3\n4. [link](https://www.google.com).\n5. ![alt text for image](url/of/image.jpg)"        
+        expected = ParentNode("div", 
+            [ParentNode("ol", 
+                [ParentNode("li", 
+                    [ParentNode(None, 
+                        [LeafNode(None, "list ")]), 
+                    ParentNode("b", 
+                        [LeafNode(None, "line")]), 
+                    ParentNode(None, 
+                        [LeafNode(None, " 1")])]), 
+                ParentNode("li", 
+                    [ParentNode(None, 
+                        [LeafNode(None, "list line 2")])]), 
+                ParentNode("li", 
+                    [ParentNode(None, 
+                        [LeafNode(None, "list ")]), 
+                    ParentNode("i", 
+                        [LeafNode(None, "line")]), 
+                    ParentNode(None, 
+                        [LeafNode(None, " 3")])]), 
+                ParentNode("li", 
+                    [ParentNode("a", 
+                        [LeafNode(None, "link")], {'href': 'https://www.google.com'}), 
+                    ParentNode(None, 
+                        [LeafNode(None, ".")])]), 
+                ParentNode("li", 
+                    [ParentNode("img", [], {'src': 'url/of/image.jpg', 'alt': 'alt text for image'})])])])
         result = markdown_to_html_node(text)
         apply_inline(result)
         self.assertEqual(result, expected)
